@@ -40,7 +40,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./Dockerfile  # Path to your Dockerfile
+          file: ./DockerFile  # Path to your Dockerfile
           push: false         # Set to 'true' if you want to push to a registry
           tags: sks2971996/one-click-deploy:latest
 
