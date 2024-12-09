@@ -3,7 +3,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 import numpy as np
 
-# Test 1: Check if the LinearRegression model is initialized
+# Test 1: Check if the LinearRegression model is initialized or not
 def test_model_initialization():
     model = LinearRegression()
     assert isinstance(model, LinearRegression), "Model should be an instance of LinearRegression"
