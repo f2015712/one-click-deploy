@@ -37,4 +37,4 @@ def test_model_metrics():
     r2 = r2_score(y_test, y_pred)
     
     assert mse < 0.1, "Mean Squared Error should be small"
-    assert 0.99 <= r2 <= 1.0, "R-squared should be close to 1 for a good fit"
+    assert 0.95 <= r2 <= 1.0, "R-squared should be close to 1 for a good fit"

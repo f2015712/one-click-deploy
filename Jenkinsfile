@@ -1,65 +1,78 @@
 pipeline {
     agent any
+
     environment {
-        GITHUB_TOKEN = credentials('****') // Replace with your GitHub token credential ID
-        GITHUB_REPO = 'https://github.com/f2015712/one-click-deploy' // Replace with your repository (e.g., user/repo)
-        PR_NUMBER = env.CHANGE_ID // Jenkins environment variable for PR number
+        GITHUB_TOKEN = credentials('github_pat')  // GitHub PAT as a Jenkins credential
+        GITHUB_REPO = 'https://github.com/f2015712/one-click-deploy' // Replace with your GitHub repository
     }
+
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                checkout([$class: 'GitSCM', branches: [[name: 'main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/f2015712/one-click-deploy.git']]])
             }
         }
-        stage('Run Python Tests') {
+        stage('Install Dependencies') {
             steps {
-                script {
-                    // Run Python tests and generate a JUnit XML report
-                    sh 'pytest --junitxml=test-results.xml || true'
-                }
+                sh '''
+                    python3 -m venv venv
+                    bash -c "source venv/bin/activate && pip install --upgrade pip && pip install -r requirements.txt"
+                '''
             }
         }
-        stage('Post Test Results to GitHub') {
+        stage('Build') {
             steps {
-                script {
-                    // Parse the test results
-                    def testResults = readFile('test-results.xml')
-
-                    // Build a comment body
-                    def comment = """
-                        **Automated Test Results**
-                        ```
-                        ${testResults}
-                        ```
-                    """
-
-                    // Post comment to GitHub PR
-                    sh """
-                        curl -H "Authorization: token ${GITHUB_TOKEN}" \
-                             -X POST \
-                             -d '{ "body": "${comment}" }' \
-                             https://api.github.com/repos/${GITHUB_REPO}/issues/${PR_NUMBER}/comments
-                    """
-                }
+                sh '''
+                    bash -c "source venv/bin/activate && python3 src/training.py"
+                '''
             }
         }
-        stage('Build Docker Image') {
+        stage('Test') {
+            steps {
+                sh '''
+                    bash -c "source venv/bin/activate && python3 -m pytest --maxfail=1 --disable-warnings --quiet --junitxml=test-results.xml"
+                '''
+            }
+        }
+        stage('Push Test Results to GitHub') {
             steps {
                 script {
-                    // Build the Docker image
-                    sh 'docker build -t your-image-name:latest .'
-
-                    // Optionally, push the image to a Docker registry
-                    // sh 'docker push your-image-name:latest'
+                    // Check if test-results.xml exists
+                    def testResultsFile = 'test-results.xml'
+                    if (fileExists(testResultsFile)) {
+                        def testResults = sh(script: "cat ${testResultsFile}", returnStdout: true).trim()
+                        def comment = """
+                            **Automated Build and Test Results**
+                            
+                            Here are the results of the latest build and tests:
+                            
+                            ```
+                            ${testResults}
+                            ```
+                        """
+                        
+                        // Posting the comment to the GitHub PR
+                        if (env.CHANGE_ID) {
+                            sh """
+                                curl -H "Authorization: token ${GITHUB_TOKEN}" \
+                                     -X POST \
+                                     -d '{ "body": "${comment}" }' \
+                                     https://api.github.com/repos/${GITHUB_REPO}/issues/${env.CHANGE_ID}/comments
+                            """
+                        } else {
+                            echo 'No PR found. Skipping GitHub comment posting.'
+                        }
+                    } else {
+                        echo 'Test results file not found. Skipping comment posting.'
+                    }
                 }
             }
         }
     }
+    
     post {
         always {
-            // Publish test results in Jenkins
-            junit 'test-results.xml'
+            junit '**/test-results.xml' // Publish the test results in Jenkins
         }
-        
     }
 }
