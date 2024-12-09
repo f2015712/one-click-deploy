@@ -5,6 +5,14 @@ pipeline {
         GITHUB_TOKEN = credentials('github_pat')  // GitHub PAT as a Jenkins credential
         GITHUB_REPO = 'https://github.com/f2015712/one-click-deploy' // Replace with your GitHub repository
     }
+    triggers {
+        // Automatically triggers on PR open or update events
+        githubPullRequest {
+            orgName('f2015712')
+            repoName('one-click-deploy')
+            triggerPhrase('retest')  // Optional: A command to manually trigger the build via comments
+        }
+    }
 
     stages {
         stage('Checkout') {
