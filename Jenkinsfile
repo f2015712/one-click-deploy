@@ -60,5 +60,6 @@ pipeline {
             // Publish test results in Jenkins
             junit 'test-results.xml'
         }
+        
     }
 }
