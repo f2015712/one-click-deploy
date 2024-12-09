@@ -70,4 +70,4 @@ jobs:
 
       - name: Run Tests
         run: |
-          python -m pytest --maxfail=1 --disable-warnings --quiet
+          python -m pytest --cov=src --cov-fail-under=99 --maxfail=1 --disable-warnings --quiet
