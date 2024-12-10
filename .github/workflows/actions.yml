@@ -89,7 +89,6 @@ jobs:
             username: ${{ secrets.DOCKER_USERNAME }}  # Docker Hub username stored as a GitHub secret
             password: ${{ secrets.DOCKER_PASSWORD }}  # Docker Hub password stored as a GitHub secret
 
-        # Step 4: Build and push the Docker image
         - name: Build and Push Docker Image
           uses: docker/build-push-action@v4
           with:
@@ -100,19 +99,17 @@ jobs:
               ${{ secrets.DOCKER_USERNAME }}/one-click-deploy:${{ github.sha }}
         
         - name: Set up kubectl
-            uses: azure/setup-kubectl@v3
-            with:
-              version: 'v1.26.0'
+          uses: azure/setup-kubectl@v3
+          with:
+            version: 'v1.26.0'
 
-    # Step 5: Configure kubeconfig
         - name: Configure Kubeconfig
-            env:
-              KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
-            run: |
-              echo "$KUBE_CONFIG_DATA" | base64 --decode > $HOME/.kube/config
+          env:
+            KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
+          run: |
+            echo "$KUBE_CONFIG_DATA" | base64 --decode > $HOME/.kube/config
 
-    # Step 6: Deploy to Kubernetes
         - name: Deploy to Kubernetes
-            run: |
-              kubectl apply -f k8s/deployment.yaml
-              kubectl apply -f k8s/service.yaml
+          run: |
+            kubectl apply -f k8s/deployment.yaml
+            kubectl apply -f k8s/service.yaml
