@@ -65,3 +65,9 @@ jobs:
       - name: Run Tests
         run: |
           python -m pytest --maxfail=1 --disable-warnings --quiet
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: ./
