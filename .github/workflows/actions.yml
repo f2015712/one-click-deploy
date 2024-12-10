@@ -72,7 +72,7 @@ jobs:
           name: build-artifacts
           path: ./
 
-  push-to-dockerhub:
+  build-and-deploy:
       runs-on: ubuntu-latest
       name: Push Docker image to Dockerhub
 
