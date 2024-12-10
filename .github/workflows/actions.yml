@@ -97,5 +97,4 @@ jobs:
             file: ./DockerFile  # Path to the Dockerfile
             push: true  # Push the image to Docker Hub
             tags: |
-              ${{ secrets.DOCKER_USERNAME }}/one-click-deploy:latest
               ${{ secrets.DOCKER_USERNAME }}/one-click-deploy:${{ github.sha }}
