@@ -97,5 +97,5 @@ jobs:
             file: ./DockerFile  # Path to the Dockerfile
             push: true  # Push the image to Docker Hub
             tags: |
-              sks2971996/one-click-deploy:latest  # Replace with your Docker Hub repo and image name
-              sks2971996/one-click-deploy:${{ github.sha }}  # Use the commit SHA for version
+              one-click-deploy:latest  # Replace with your Docker Hub repo and image name
+              one-click-deploy:${{ github.sha }}  # Use the commit SHA for version
