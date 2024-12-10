@@ -97,19 +97,3 @@ jobs:
             push: true  # Push the image to Docker Hub
             tags: |
               ${{ secrets.DOCKER_USERNAME }}/one-click-deploy:${{ github.sha }}
-        
-        - name: Set up kubectl
-          uses: azure/setup-kubectl@v3
-          with:
-            version: 'v1.26.0'
-
-        - name: Configure Kubeconfig
-          env:
-            KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG }}
-          run: |
-            echo "$KUBE_CONFIG_DATA" | base64 --decode > $HOME/.kube/config
-
-        - name: Deploy to Kubernetes
-          run: |
-            kubectl apply -f k8s/deployment.yaml
-            kubectl apply -f k8s/service.yaml
